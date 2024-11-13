@@ -12,7 +12,7 @@ class TrainModel():
     
     def train_model(self):
         token_dictionary = self.embedding_dictionary()
-        for index, song in enumerate(self.train_set[:10]):
+        for index, song in enumerate(self.train_set):
             self.model.train()
             melody_mask = self.compute_mask_training(song)
             embeded_song = [token_dictionary[token] for token in song]
@@ -36,7 +36,7 @@ class TrainModel():
                     val_melody_mask = self.compute_mask_testing(val_song)
                     val_input_song = self.harmonies_to_zero(val_embeded_song)
                     val_output, _ = self.model(val_input_song, val_melody_mask)
-                    val_loss = self.num_epochscriterion(val_output, torch.tensor(val_embeded_song))
+                    val_loss = self.criterion(val_output, torch.tensor(val_embeded_song))
                     total_val_loss += val_loss.item()
                 print(f'Validation loss: {total_val_loss / len(self.validation_set)}')
 
