@@ -6,6 +6,7 @@ class Preprocess():
         self.train_set = []
         self.test_set = []
         self.validation_set = []
+        self.notes = set()
 
     def process_data(self):
         folder_path = 'Data/'
@@ -22,6 +23,8 @@ class Preprocess():
                             self.train_set.append(song)
                         if dirname == 'valid':
                             self.validation_set.append(song)
+
+        return self.notes # all notes in the dataset
 
     def get_pitch_class(self, note):
         return note % 12
@@ -67,10 +70,13 @@ class Preprocess():
         return df
 
     def encode_song(self, song):
+        
         result = []
         prev = {'note0': -1, 'note1': -1, 'note2': -1, 'note3': -1}
         result.append('START')
-        
+        # if 2 in song.values:
+        #     print(song.values)
+
         for index, row in song.iterrows():
             for voice in ['note0', 'note1', 'note2', 'note3']:
                 pitch = row[voice]
@@ -79,6 +85,7 @@ class Preprocess():
                 tied = 1 if pitch == previous_pitch else 0
                 result.append((pitch,tied))
                 prev[voice] = pitch
+                self.notes.add((pitch,tied))
             result.append('|||')
         result.append('END')
         return result

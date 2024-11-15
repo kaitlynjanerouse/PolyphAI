@@ -2,17 +2,18 @@ from music21 import stream, note
 import torch
 
 class Music():
-    def __init__(self, song):
-        self.song = song
+    def __init__(self, test_set):
+        self.songs = [song for song in test_set]
         self.token_dictionary = self.embedding_dictionary()
 
     def kickoff_model(self, model):
-        embedded_test = [self.token_dictionary[token] for token in self.song]
-        test_mask = self.compute_mask_testing(self.song)
-        input_embedded_test = self.harmonies_to_zero(embedded_test)
+        for i, song in enumerate(self.songs):
+            embedded_test = [self.token_dictionary[token] for token in song]
+            test_mask = self.compute_mask_testing(song)
+            input_embedded_test = self.harmonies_to_zero(embedded_test)
 
-        output, _ = model(input_embedded_test, test_mask)
-        self.output_to_sheet_music(output)
+            output, _ = model(input_embedded_test, test_mask)
+            self.output_to_sheet_music(output, f'output{i}.xml')
     
     def compute_mask_testing(self, song):
         result = []
@@ -67,7 +68,7 @@ class Music():
         
         return melody, alto, tenor, bass
 
-    def output_to_sheet_music(self, result):
+    def output_to_sheet_music(self, result, file_name):
         result = torch.argmax(result, dim=-1)
         result = result.squeeze(0)
         melody_notes, alto_notes, tenor_notes, bass_notes = self.process_sequence(result.numpy())
@@ -85,4 +86,4 @@ class Music():
         score.append(bass_part)
 
         score.show('midi')
-        score.write('musicxml', 'output.xml')
+        score.write('musicxml', f'Test Results/{file_name}')

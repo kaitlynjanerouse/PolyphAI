@@ -3,8 +3,8 @@ import torch
 
 class TrainModel():
     def __init__(self, model, train_set, validation_set):
-        self.criterion = nn.CrossEntropyLoss()
-        self.num_epochs = 120
+        self.criterion = nn.CrossEntropyLoss(label_smoothing=.1)
+        self.num_epochs = 50
         self.optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay=1e-5)
         self.model = model
         self.train_set = train_set
@@ -14,7 +14,7 @@ class TrainModel():
         token_dictionary = self.embedding_dictionary()
         for index, song in enumerate(self.train_set):
             self.model.train()
-            melody_mask = self.compute_mask_training(song)
+            melody_mask = self.compute_mask(song)
             embeded_song = [token_dictionary[token] for token in song]
             hidden = None
             for epoch in range(self.num_epochs):
@@ -25,7 +25,7 @@ class TrainModel():
                 loss.backward()
                 hidden = tuple(h.detach() for h in hidden)
                 self.optimizer.step()
-                if (epoch + 1) % 10 == 0:
+                if (epoch + 1) % 1 == 0:
                     print(f"Song {index + 1}, Epoch {epoch + 1}/{self.num_epochs}, Loss: {loss.item()}")
                     
             with torch.no_grad():
@@ -33,14 +33,14 @@ class TrainModel():
                 total_val_loss = 0
                 for val_song in self.validation_set:
                     val_embeded_song = [token_dictionary[token] for token in val_song]
-                    val_melody_mask = self.compute_mask_testing(val_song)
+                    val_melody_mask = self.compute_mask(val_song)
                     val_input_song = self.harmonies_to_zero(val_embeded_song)
                     val_output, _ = self.model(val_input_song, val_melody_mask)
                     val_loss = self.criterion(val_output, torch.tensor(val_embeded_song))
                     total_val_loss += val_loss.item()
                 print(f'Validation loss: {total_val_loss / len(self.validation_set)}')
 
-    def compute_mask_training(self, song):
+    def compute_mask(self, song):
         result = []
         result.append(True) # start
         for i in range(1, len(song) - 1):
@@ -49,15 +49,6 @@ class TrainModel():
             else:
                 result.append(False)
         result.append(True) # end
-        return result
-
-    def compute_mask_testing(self, song):
-        result = []
-        for i in range(len(song)):
-            if i % 5 == 1 and i != len(song) - 1:
-                result.append(True)
-            else:
-                result.append(False)
         return result
 
     def embedding_dictionary(self):

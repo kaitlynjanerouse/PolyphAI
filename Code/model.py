@@ -3,10 +3,10 @@ import torch.nn as nn
 import random
 
 class Model(nn.Module):
-    def __init__(self, embedding_dim=128, hidden_dim=512, vocab_size=259, num_layers=2, droput_rate=.3):
+    def __init__(self, embedding_dim=128, hidden_dim=512, vocab_size=259, num_layers=2, droput_rate=.2):
         super(Model, self).__init__()
-        self.lstm = nn.LSTM(embedding_dim, hidden_dim, num_layers, batch_first=True, bidirectional=True)
-        self.fc = nn.Linear(in_features=hidden_dim * 2, out_features=vocab_size)
+        self.lstm = nn.LSTM(embedding_dim, hidden_dim, num_layers, batch_first=True, bidirectional=False)
+        self.fc = nn.Linear(in_features=hidden_dim, out_features=vocab_size)
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
         self.dropout = nn.Dropout(droput_rate)
         self.hidden_dim = hidden_dim
@@ -14,8 +14,8 @@ class Model(nn.Module):
         self.batch_size = 1
 
     def init_hidden_state(self):
-        return (torch.zeros(self.num_layers * 2, self.batch_size, self.hidden_dim),
-                torch.zeros(self.num_layers * 2, self.batch_size, self.hidden_dim))
+        return (torch.zeros(self.num_layers, self.batch_size, self.hidden_dim),
+                torch.zeros(self.num_layers, self.batch_size, self.hidden_dim))
     
     def forward(self, song, mask, hidden=None, teacher_forcing_ratio=None):
         if hidden is None:
