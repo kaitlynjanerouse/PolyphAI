@@ -5,9 +5,9 @@ from music import Music
 
 def polyph_ai():
     preprocess = Preprocess()
-    notes = preprocess.process_data()
+    preprocess.process_data()
     model = Model()
-    train = TrainModel(model, preprocess.train_set, preprocess.validation_set)
+    train = TrainModel(model, preprocess.train_set, preprocess.validation_set, preprocess.notes)
     train.train_model()
     music = Music(preprocess.test_set)
     music.kickoff_model(model)
