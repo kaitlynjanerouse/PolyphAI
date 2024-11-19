@@ -10,7 +10,7 @@ class Preprocess():
         self.notes = set()
 
     def process_data(self):
-        folder_path = 'Data/'
+        folder_path = './Data/'
         for dirname in os.listdir(folder_path):
             if dirname != '.DS_Store':
                 for filename in os.listdir(folder_path + dirname):
