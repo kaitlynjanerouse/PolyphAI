@@ -13,7 +13,7 @@ class TrainModel():
     
     def train_model(self):
         token_dictionary = self.embedding_dictionary()
-        for index, song in enumerate(self.train_set):
+        for index, song in enumerate(self.train_set[:100]):
             self.model.train()
             melody_mask = self.compute_mask(song)
             embeded_song = [token_dictionary[token] for token in song]

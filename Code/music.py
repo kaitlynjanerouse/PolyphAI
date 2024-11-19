@@ -2,8 +2,9 @@ from music21 import stream, note
 import torch
 
 class Music():
-    def __init__(self, test_set):
+    def __init__(self, test_set, notes):
         self.songs = [song for song in test_set]
+        self.notes_in_data = notes
         self.token_dictionary = self.embedding_dictionary()
 
     def kickoff_model(self, model):
