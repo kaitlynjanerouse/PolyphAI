@@ -9,9 +9,8 @@ def polyph_ai():
         print("GPU is available!")
     else:
         print("GPU is not available.")
-        
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print("Using device: ", device)
     preprocess = Preprocess()
     preprocess.process_data()
     model = Model(device=device).to(device)

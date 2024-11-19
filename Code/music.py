@@ -79,7 +79,6 @@ class Music():
         result = torch.argmax(result, dim=-1)
         result = result.squeeze(0)
         melody_notes, alto_notes, tenor_notes, bass_notes = self.process_sequence(result.numpy())
-        print(alto_notes)
 
         melody_part = self.midi_to_note(melody_notes)
         alto_part = self.midi_to_note(alto_notes)
@@ -92,5 +91,5 @@ class Music():
         score.append(tenor_part)
         score.append(bass_part)
 
-        score.show('midi')
-        score.write('musicxml', f'Test Results/{file_name}')
+        # score.show('midi')
+        score.write('musicxml', f'Results/{file_name}')
