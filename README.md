@@ -12,7 +12,7 @@ This is a machine learning tool designed to aid musicians in composing sheet mus
 3. Install requirements: _pip install -r requirements.txt_
 
 4. Kickoff model: _python3 polyphai.py_
-   Results will be stored in Code/Results
-   .xml files can be viewed in MuseScore
+   - Results will be stored in Code/Results
+   - .xml files can be viewed in MuseScore
 
 5. Deactivate the virtual environemnt: _deactivate_
