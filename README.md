@@ -16,3 +16,9 @@ This is a machine learning tool designed to aid musicians in composing sheet mus
    - .xml files can be viewed in MuseScore
 
 5. Deactivate the virtual environemnt: _deactivate_
+
+
+For changes to the repository:
+1. git add .
+2. git commit -m "model result"
+3. git push
