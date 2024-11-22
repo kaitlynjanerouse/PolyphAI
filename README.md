@@ -7,7 +7,7 @@ This is a machine learning tool designed to aid musicians in composing sheet mus
 
 2. Activate the virtual environment:
    - For mac users, run _source my_env/bin/activate_
-   - For windows users, _run my_env\Scripts\activate_
+   - For windows users, run _my_env\Scripts\activate_
 
 3. Install requirements: _pip install -r requirements.txt_
 
