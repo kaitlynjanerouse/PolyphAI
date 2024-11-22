@@ -4,7 +4,7 @@ import torch
 class TrainModel():
     def __init__(self, model, train_set, validation_set, notes_in_data, device="cpu"):
         self.criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
-        self.num_epochs = 100
+        self.num_epochs = 50
         self.optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay=1e-5)
         self.model = model
         self.train_set = train_set
