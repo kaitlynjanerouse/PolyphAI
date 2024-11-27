@@ -47,6 +47,10 @@ class Model(nn.Module):
                 clamped_output[0, 0, song[i]] = 1.0
                 output.append(clamped_output)
                 curr = song[i]
+                x = torch.tensor(song[i], dtype=torch.long, device=self.device)  # Use clamped value as next input
+                x_embedded = self.embedding(x).unsqueeze(0).unsqueeze(0)
+                _, hidden = self.lstm(x_embedded, hidden)
+
             else: 
                 if teacher_forcing_ratio and random.random() < teacher_forcing_ratio:
                     output.append(curr)
@@ -57,3 +61,6 @@ class Model(nn.Module):
             x = curr
         output = torch.cat(output, dim=1).view(-1, self.fc.out_features)
         return output, hidden
+    
+    
+    
