@@ -4,7 +4,7 @@ import torch
 class TrainModel():
     def __init__(self, model, train_set, validation_set, notes_in_data, device="cpu"):
         self.criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
-        self.num_epochs = 50
+        self.num_epochs = 1
         self.optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay=1e-5)
         self.model = model
         self.train_set = train_set
@@ -14,7 +14,7 @@ class TrainModel():
 
     def train_model(self):
         token_dictionary = self.embedding_dictionary()
-        for index, song in enumerate(self.train_set):
+        for index, song in enumerate(self.train_set[:1]):
             self.model.train()
             melody_mask = torch.tensor(self.compute_mask(song), device=self.device)
             embeded_song = torch.tensor([token_dictionary[token] for token in song], device=self.device)
