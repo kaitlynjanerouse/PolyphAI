@@ -25,8 +25,12 @@ class Model(nn.Module):
 
         output = []
         x = song[0]
-        
-        for i in range(len(song)):
+
+        start_logits = torch.zeros(1, 1, self.fc.out_features, device=self.device)
+        start_logits[0, 0, song[0]] = 1.0
+        output.append(start_logits)
+
+        for i in range(1,len(song)):
             if not isinstance(x, torch.Tensor):
                 x = torch.tensor(x, dtype=torch.long, device=self.device)
             else:

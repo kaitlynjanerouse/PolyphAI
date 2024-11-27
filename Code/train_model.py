@@ -14,15 +14,25 @@ class TrainModel():
 
     def train_model(self):
         token_dictionary = self.embedding_dictionary()
-        for index, song in enumerate(self.train_set[:1]):
+        total_songs = len(self.train_set)
+        for index, song in enumerate(self.train_set[:3]):
             self.model.train()
             melody_mask = torch.tensor(self.compute_mask(song), device=self.device)
             embeded_song = torch.tensor([token_dictionary[token] for token in song], device=self.device)
             hidden = None
+            teacher_forcing_rate = max(0.87 * (1 - index / total_songs), 0)
+            print(teacher_forcing_rate)
             for epoch in range(self.num_epochs):
-                teacher_forcing_rate = max(0.5 * (1 - epoch / self.num_epochs), 0)
+                #teacher_forcing_rate = max(0.5 * (1 - epoch / self.num_epochs), 0)
                 self.optimizer.zero_grad()
                 output, hidden = self.model(embeded_song, melody_mask, hidden, teacher_forcing_rate)
+                print(f"  First 10 notes of output: {output[:10].argmax(dim=1).tolist()}")
+                print(f"  First 10 notes of embedded song: {embeded_song[:10].tolist()}")
+                
+                print(f"  last 10 notes of output: {output[len(output)-10:].argmax(dim=1).tolist()}")
+                print(f"  LAST 10 notes of embedded song: {embeded_song[len(output)-10:].tolist()}")
+
+
                 loss = self.criterion(output, embeded_song)
                 loss.backward()
                 hidden = tuple(h.detach().to(self.device) for h in hidden)  
