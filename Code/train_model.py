@@ -1,45 +1,46 @@
 import torch.nn as nn
 import torch
+import matplotlib.pyplot as plt
 
 class TrainModel():
     def __init__(self, model, train_set, validation_set, notes_in_data, device="cpu"):
         self.criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
-        self.num_epochs = 1
+        self.num_epochs = 30
         self.optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay=1e-5)
         self.model = model
         self.train_set = train_set
         self.validation_set = validation_set
         self.notes_in_data = notes_in_data
-        self.device = device 
+        self.device = device
+        self.train_losses = []  # Track training losses
+        self.val_losses = []  # Track validation losses
 
     def train_model(self):
         token_dictionary = self.embedding_dictionary()
         total_songs = len(self.train_set)
-        for index, song in enumerate(self.train_set[:3]):
+        for index, song in enumerate(self.train_set):
             self.model.train()
             melody_mask = torch.tensor(self.compute_mask(song), device=self.device)
             embeded_song = torch.tensor([token_dictionary[token] for token in song], device=self.device)
             hidden = None
             teacher_forcing_rate = max(0.87 * (1 - index / total_songs), 0)
-            print(teacher_forcing_rate)
+
+            total_train_loss = 0
             for epoch in range(self.num_epochs):
-                #teacher_forcing_rate = max(0.5 * (1 - epoch / self.num_epochs), 0)
                 self.optimizer.zero_grad()
                 output, hidden = self.model(embeded_song, melody_mask, hidden, teacher_forcing_rate)
-                print(f"  First 10 notes of output: {output[:10].argmax(dim=1).tolist()}")
-                print(f"  First 10 notes of embedded song: {embeded_song[:10].tolist()}")
-                
-                print(f"  last 10 notes of output: {output[len(output)-10:].argmax(dim=1).tolist()}")
-                print(f"  LAST 10 notes of embedded song: {embeded_song[len(output)-10:].tolist()}")
-
-
                 loss = self.criterion(output, embeded_song)
                 loss.backward()
                 hidden = tuple(h.detach().to(self.device) for h in hidden)  
                 self.optimizer.step()
+                total_train_loss += loss.item()
                 if (epoch + 1) % 1 == 0:
                     print(f"Song {index + 1}, Epoch {epoch + 1}/{self.num_epochs}, Loss: {loss.item()}")
-                    
+                
+            self.train_losses.append(total_train_loss / self.num_epochs)
+            print(f"Average train loss: {total_train_loss / self.num_epochs}")
+
+            # Validation after each song
             with torch.no_grad():
                 self.model.eval()
                 total_val_loss = 0
@@ -54,7 +55,9 @@ class TrainModel():
                     val_output, _ = self.model(val_input_song, val_melody_mask)
                     val_loss = self.criterion(val_output, val_embeded_song)
                     total_val_loss += val_loss.item()
-                print(f"Validation loss: {total_val_loss / len(self.validation_set)}")
+                avg_val_loss = total_val_loss / len(self.validation_set)
+                print(f"Validation loss: {avg_val_loss}")
+                self.val_losses.append(avg_val_loss)
 
     def compute_mask(self, song):
         result = [True]  # start
@@ -86,3 +89,13 @@ class TrainModel():
             else:
                 result.append(song[i])
         return result
+
+    def plot_losses(self):
+        plt.figure(figsize=(10, 6))
+        plt.plot(range(len(self.train_losses)), self.train_losses, label="Training Loss")
+        plt.plot(range(len(self.val_losses)), self.val_losses, label="Validation Loss")
+        plt.xlabel("Songs") 
+        plt.ylabel("Loss")
+        plt.title("Training and Validation Loss Over Songs")
+        plt.legend()
+        plt.show()

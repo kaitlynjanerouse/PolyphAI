@@ -3,7 +3,7 @@ import torch.nn as nn
 import random
 
 class Model(nn.Module):
-    def __init__(self, embedding_dim=128, hidden_dim=512, vocab_size=97, num_layers=2, dropout_rate=0.2, device="cpu"):
+    def __init__(self, embedding_dim=128, hidden_dim=512, vocab_size=97, num_layers=2, dropout_rate=0.15, device="cpu"):
         super(Model, self).__init__()
         self.lstm = nn.LSTM(embedding_dim, hidden_dim, num_layers, batch_first=True, bidirectional=False)
         self.fc = nn.Linear(in_features=hidden_dim, out_features=vocab_size)
@@ -30,7 +30,7 @@ class Model(nn.Module):
         start_logits[0, 0, song[0]] = 1.0
         output.append(start_logits)
 
-        for i in range(1,len(song)):
+        for i in range(1, len(song)):
             if not isinstance(x, torch.Tensor):
                 x = torch.tensor(x, dtype=torch.long, device=self.device)
             else:
@@ -55,6 +55,9 @@ class Model(nn.Module):
                 if teacher_forcing_ratio and random.random() < teacher_forcing_ratio:
                     output.append(curr)
                     curr = song[i]
+                    x = torch.tensor(song[i], dtype=torch.long, device=self.device)  # Use clamped value as next input
+                    x_embedded = self.embedding(x).unsqueeze(0).unsqueeze(0)
+                    _, hidden = self.lstm(x_embedded, hidden)
                 else:
                     output.append(curr)
                     curr = curr.argmax(dim=2).item()

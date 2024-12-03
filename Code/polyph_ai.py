@@ -16,6 +16,7 @@ def polyph_ai():
     model = Model(device=device).to(device)
     train = TrainModel(model, preprocess.train_set, preprocess.validation_set, preprocess.notes, device)
     train.train_model()
+    train.plot_losses()
     music = Music(preprocess.test_set, preprocess.notes)
     music.kickoff_model(model)
 
