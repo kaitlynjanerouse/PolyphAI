@@ -62,7 +62,7 @@ class Music():
         result.append(note.Note(prev, quarterLength=count / 4))
         return result
 
-    def process_sequence(self, sequence, delimiter_token="|||"):
+    def process_sequence(self, sequence):
         index_to_token = {v: k for k, v in self.token_dictionary.items()}
         original_sequence = [index_to_token[embedded_value] for embedded_value in sequence]
         original_sequence = original_sequence[1:-1]
@@ -79,6 +79,7 @@ class Music():
         result = torch.argmax(result, dim=-1)
         result = result.squeeze(0)
         melody_notes, alto_notes, tenor_notes, bass_notes = self.process_sequence(result.cpu().numpy())
+        print("alto notes: ", alto_notes)
 
         melody_part = self.midi_to_note(melody_notes)
         alto_part = self.midi_to_note(alto_notes)
