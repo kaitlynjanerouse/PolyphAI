@@ -17,12 +17,13 @@ class Music():
             self.output_to_sheet_music(output, f'output{i}.xml')
     
     def compute_mask_testing(self, song):
-        result = []
-        for i in range(len(song)):
-            if i % 5 == 1 and i != len(song) - 1:
+        result = [True]  # start
+        for i in range(1, len(song) - 1):
+            if i % 5 == 1 or i % 5 == 0:
                 result.append(True)
             else:
                 result.append(False)
+        result.append(True)  # end
         return result
 
     def harmonies_to_zero(self, song):
@@ -50,9 +51,9 @@ class Music():
     def midi_to_note(self, part):
         result = stream.Part()
         count = 1
-        prev = round(int(part[0]))
+        prev = round(part[0])
         for i in range(1, len(part)):
-            curr = round(int(part[i]))
+            curr = round(part[i])
             if curr == prev:
                 count += 1
             else:
@@ -62,7 +63,7 @@ class Music():
         result.append(note.Note(prev, quarterLength=count / 4))
         return result
 
-    def process_sequence(self, sequence):
+    def process_sequence(self, sequence, delimiter_token="|||"):
         index_to_token = {v: k for k, v in self.token_dictionary.items()}
         original_sequence = [index_to_token[embedded_value] for embedded_value in sequence]
         original_sequence = original_sequence[1:-1]
@@ -76,12 +77,9 @@ class Music():
         return melody, alto, tenor, bass
 
     def output_to_sheet_music(self, result, file_name):
-        result = torch.argmax(result.cpu(), dim=-1).numpy()
-        # result = result.squeeze(0)
-        
-        print("result is: ", result)
-        melody_notes, alto_notes, tenor_notes, bass_notes = self.process_sequence(result)
-        print("alto notes: ", alto_notes)
+        result = torch.argmax(result, dim=-1)
+        result = result.squeeze(0)
+        melody_notes, alto_notes, tenor_notes, bass_notes = self.process_sequence(result.numpy())
 
         melody_part = self.midi_to_note(melody_notes)
         alto_part = self.midi_to_note(alto_notes)
