@@ -50,7 +50,7 @@ class Music():
     def midi_to_note(self, part):
         result = stream.Part()
         count = 1
-        prev = round(part[0])
+        prev = round(int(part[0]))
         for i in range(1, len(part)):
             curr = round(int(part[i]))
             if curr == prev:
