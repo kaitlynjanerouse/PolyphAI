@@ -77,10 +77,10 @@ class Music():
 
     def output_to_sheet_music(self, result, file_name):
         result = torch.argmax(result.cpu(), dim=-1).numpy()
-        result = result.squeeze(0)
+        # result = result.squeeze(0)
         
         print("result is: ", result)
-        melody_notes, alto_notes, tenor_notes, bass_notes = self.process_sequence(result.numpy())
+        melody_notes, alto_notes, tenor_notes, bass_notes = self.process_sequence(result)
         print("alto notes: ", alto_notes)
 
         melody_part = self.midi_to_note(melody_notes)
