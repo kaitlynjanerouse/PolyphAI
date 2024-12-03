@@ -52,6 +52,7 @@ class Music():
         result = stream.Part()
         count = 1
         prev = round(part[0])
+        
         for i in range(1, len(part)):
             curr = round(part[i])
             if curr == prev:
