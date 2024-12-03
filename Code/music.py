@@ -52,7 +52,7 @@ class Music():
         count = 1
         prev = round(part[0])
         for i in range(1, len(part)):
-            curr = round(part[i])
+            curr = round(int(part[i]))
             if curr == prev:
                 count += 1
             else:
