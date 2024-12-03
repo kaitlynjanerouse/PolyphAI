@@ -15,7 +15,6 @@ class Model(nn.Module):
         self.device = device
 
     def init_hidden_state(self):
-        # Move the hidden states to the device
         return (torch.zeros(self.num_layers, self.batch_size, self.hidden_dim).to(self.device),
                 torch.zeros(self.num_layers, self.batch_size, self.hidden_dim).to(self.device))
     
@@ -47,7 +46,7 @@ class Model(nn.Module):
                 clamped_output[0, 0, song[i]] = 1.0
                 output.append(clamped_output)
                 curr = song[i]
-                x = torch.tensor(song[i], dtype=torch.long, device=self.device)  # Use clamped value as next input
+                x = torch.tensor(song[i], dtype=torch.long, device=self.device)  
                 x_embedded = self.embedding(x).unsqueeze(0).unsqueeze(0)
                 _, hidden = self.lstm(x_embedded, hidden)
 
@@ -55,7 +54,7 @@ class Model(nn.Module):
                 if teacher_forcing_ratio and random.random() < teacher_forcing_ratio:
                     output.append(curr)
                     curr = song[i]
-                    x = torch.tensor(song[i], dtype=torch.long, device=self.device)  # Use clamped value as next input
+                    x = torch.tensor(song[i], dtype=torch.long, device=self.device)  
                     x_embedded = self.embedding(x).unsqueeze(0).unsqueeze(0)
                     _, hidden = self.lstm(x_embedded, hidden)
                 else:
@@ -64,6 +63,3 @@ class Model(nn.Module):
             x = curr
         output = torch.cat(output, dim=1).view(-1, self.fc.out_features)
         return output, hidden
-    
-    
-    

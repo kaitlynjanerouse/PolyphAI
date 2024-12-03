@@ -76,7 +76,6 @@ class Preprocess():
         df = df.applymap(transpose_and_wrap)
         return df
 
-
     def encode_song(self, song):
         
         result = []

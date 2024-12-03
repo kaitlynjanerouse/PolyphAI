@@ -17,8 +17,8 @@ class TrainModel():
 
     def train_model(self):
         token_dictionary = self.embedding_dictionary()
-        total_songs = len(self.train_set[:1])
-        for index, song in enumerate(self.train_set):
+        total_songs = len(self.train_set)
+        for index, song in enumerate(self.train_set[:1]):
             self.model.train()
             melody_mask = torch.tensor(self.compute_mask(song), device=self.device)
             embeded_song = torch.tensor([token_dictionary[token] for token in song], device=self.device)
