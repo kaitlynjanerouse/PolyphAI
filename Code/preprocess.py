@@ -73,7 +73,7 @@ class Preprocess():
                 transposed -= 12
             return transposed
 
-        df = df.map(transpose_and_wrap)
+        df = df.applymap(transpose_and_wrap)
         return df
 
 
