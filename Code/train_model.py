@@ -1,3 +1,7 @@
+"""
+Train the model on all songs in the training set and verify progress with validation set.
+"""
+
 import torch.nn as nn
 import torch
 import matplotlib.pyplot as plt
@@ -5,25 +9,28 @@ import matplotlib.pyplot as plt
 class TrainModel():
     def __init__(self, model, train_set, validation_set, notes_in_data, device="cpu"):
         self.criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
-        self.num_epochs = 50
         self.optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, weight_decay=1e-5)
         self.model = model
         self.train_set = train_set
         self.validation_set = validation_set
         self.notes_in_data = notes_in_data
         self.device = device
-        self.train_losses = []  # Track training losses
-        self.val_losses = []  # Track validation losses
+        self.num_epochs = 50
+        self.train_losses = []  
+        self.val_losses = []
 
+    """Trains the model on the training dataset."""
     def train_model(self):
         token_dictionary = self.embedding_dictionary()
         total_songs = len(self.train_set)
+
         for index, song in enumerate(self.train_set):
+            # Run each training song through the model
             self.model.train()
             melody_mask = torch.tensor(self.compute_mask(song), device=self.device)
             embeded_song = torch.tensor([token_dictionary[token] for token in song], device=self.device)
             hidden = None
-            teacher_forcing_rate = max(0.87 * (1 - index / total_songs), 0)
+            teacher_forcing_rate = max(0.9 * (1 - index / total_songs), 0)
 
             total_train_loss = 0
             for epoch in range(self.num_epochs):
@@ -40,7 +47,7 @@ class TrainModel():
             self.train_losses.append(total_train_loss / self.num_epochs)
             print(f"Average train loss: {total_train_loss / self.num_epochs}")
 
-            # Validation after each song
+            # Evaluate performance on validation set after each training song
             with torch.no_grad():
                 self.model.eval()
                 total_val_loss = 0
@@ -59,6 +66,7 @@ class TrainModel():
                 print(f"Validation loss: {avg_val_loss}")
                 self.val_losses.append(avg_val_loss)
 
+    """Mask the melody tokens, along with all delimeters and START and END tokens"""
     def compute_mask(self, song):
         result = [True]  # start
         for i in range(1, len(song) - 1):
@@ -69,6 +77,7 @@ class TrainModel():
         result.append(True)  # end
         return result
 
+    """Creates embeddings for all unique tokens"""
     def embedding_dictionary(self):
         token_to_index = {("START"): 0, ("END"): 1, ("|||"): 2, (0, 0): 3, (0, 1): 4}
         non_zero_notes = {x for x in self.notes_in_data if x != 0}
@@ -81,6 +90,7 @@ class TrainModel():
             token_to_index[(note, 1)] = base_index + note - min_val + range_offset
         return token_to_index
 
+    """Zeros out all harmonies for songs in the validation set"""
     def harmonies_to_zero(self, song):
         result = []
         for i in range(len(song)):
@@ -90,6 +100,7 @@ class TrainModel():
                 result.append(song[i])
         return result
 
+    """Create a graph to show the training and validation loss over all songs"""
     def plot_losses(self):
         plt.figure(figsize=(10, 6))
         plt.plot(range(len(self.train_losses)), self.train_losses, label="Training Loss")

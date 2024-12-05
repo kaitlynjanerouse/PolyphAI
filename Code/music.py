@@ -1,12 +1,18 @@
+"""
+Transforms the model's output to sheet music.
+"""
+
 from music21 import stream, note
 import torch
 
 class Music():
-    def __init__(self, test_set, notes):
+    def __init__(self, test_set, notes, folder_name):
         self.songs = [song for song in test_set]
         self.notes_in_data = notes
         self.token_dictionary = self.embedding_dictionary()
+        self.folder_name = folder_name
 
+    """Passes each song through the model and processes its output"""
     def kickoff_model(self, model):
         for i, song in enumerate(self.songs):
             embedded_test = [self.token_dictionary[token] for token in song]
@@ -16,6 +22,7 @@ class Music():
             output, _ = model(input_embedded_test, test_mask)
             self.output_to_sheet_music(output, f'output{i}.xml')
     
+    """Mask the melody tokens, along with all delimeters and START and END tokens"""
     def compute_mask_testing(self, song):
         result = [True]  # start
         for i in range(1, len(song) - 1):
@@ -26,6 +33,7 @@ class Music():
         result.append(True)  # end
         return result
 
+    """Zeros out all harmonies for songs in the validation set"""
     def harmonies_to_zero(self, song):
         result = []
         for i in range(len(song)):
@@ -35,6 +43,7 @@ class Music():
                 result.append(song[i])
         return result
 
+    """Creates embeddings for all unique tokens"""
     def embedding_dictionary(self):
         token_to_index = {("START"): 0, ("END"): 1, ("|||"): 2, (0, 0): 3, (0, 1): 4}
         
@@ -48,6 +57,7 @@ class Music():
             token_to_index[(note, 1)] = base_index + note - min_val + range_offset
         return token_to_index
 
+    """Processes each note and determines if its held or not before adding it to a music21 Part object"""
     def midi_to_note(self, part):
         result = stream.Part()
         count = 1
@@ -64,6 +74,7 @@ class Music():
         result.append(note.Note(prev, quarterLength=count / 4))
         return result
 
+    """Removes all special tokens and only uses the predicted note in the (note, tie) tuple"""
     def process_sequence(self, sequence, delimiter_token="|||"):
         index_to_token = {v: k for k, v in self.token_dictionary.items()}
         original_sequence = [index_to_token[embedded_value] for embedded_value in sequence]
@@ -77,6 +88,7 @@ class Music():
         
         return melody, alto, tenor, bass
 
+    """Transforms output notes to sheet music"""
     def output_to_sheet_music(self, result, file_name):
         result = torch.argmax(result, dim=-1) 
         result = result.detach().cpu().numpy()
@@ -94,5 +106,4 @@ class Music():
         score.append(tenor_part)
         score.append(bass_part)
 
-        # score.show('midi')
-        score.write('musicxml', f'Results/{file_name}')
+        score.write('musicxml', f'{self.folder_name}/{file_name}')
