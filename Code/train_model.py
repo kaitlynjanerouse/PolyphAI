@@ -15,7 +15,7 @@ class TrainModel():
         self.validation_set = validation_set
         self.notes_in_data = notes_in_data
         self.device = device
-        self.num_epochs = 50
+        self.num_epochs = 75
         self.train_losses = []  
         self.val_losses = []
 
@@ -82,7 +82,7 @@ class TrainModel():
         token_to_index = {("START"): 0, ("END"): 1, ("|||"): 2, (0, 0): 3, (0, 1): 4}
         non_zero_notes = {x for x in self.notes_in_data if x != 0}
         min_val = min(non_zero_notes)
-        max_val = max(self.notes_in_data)
+        max_val = 88
         range_offset = max_val - min_val + 1
         base_index = 5
         for note in range(min_val, max_val + 1):

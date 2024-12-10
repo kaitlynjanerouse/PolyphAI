@@ -43,14 +43,14 @@ class PolyphAI:
             print(f"Finished model stored in {self.model_path}")
         else:
             print("Loading saved model...")
-            self.model.load_state_dict(torch.load(self.model_path, weights_only=True))
+            self.model.load_state_dict(torch.load(self.model_path, weights_only=True, map_location=torch.device(self.device)))
             self.model.eval()
 
     def kickoff_music_generation(self):
         path = ''
         if self.csv_path:
-            path = 'User Results'
-            music = Music(self.preprocess.user_input, self.preprocess.notes, 'User Results')
+            path = 'User'
+            music = Music(self.preprocess.user_input, self.preprocess.notes, 'User')
         else:
             path = 'Results'
             music = Music(self.preprocess.test_set, self.preprocess.notes, 'Results')

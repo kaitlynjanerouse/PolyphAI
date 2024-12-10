@@ -20,24 +20,25 @@ class Preprocess():
     def process_data(self):
         if self.file_path: # user provided data
             df = pd.read_csv(self.file_path)
-            transpose = self.key_transposition(df)
-            song = self.encode_song(transpose)
+            #transpose = self.key_transposition(df)
+            song = self.encode_song(df)
             self.user_input.append(song)
-        else: # training, test, and validation data
-            folder_path = 'Data/'
-            for dirname in os.listdir(folder_path):
-                if dirname != '.DS_Store':
-                    for filename in os.listdir(folder_path + dirname):
-                        if filename != '.ipynb_checkpoints':
-                            df = pd.read_csv(folder_path + dirname + '/' + filename)
-                            transpose = self.key_transposition(df)
-                            song = self.encode_song(transpose)
-                            if dirname == 'test':
-                                self.test_set.append(song)
-                            if dirname == 'train':
-                                self.train_set.append(song)
-                            if dirname == 'valid':
-                                self.validation_set.append(song)
+        
+        folder_path = 'Data/'
+        for dirname in os.listdir(folder_path):
+            if dirname != '.DS_Store':
+                for filename in os.listdir(folder_path + dirname):
+                    if filename != '.ipynb_checkpoints':
+                        df = pd.read_csv(folder_path + dirname + '/' + filename)
+                        transpose = self.key_transposition(df)
+                        song = self.encode_song(transpose)
+                        if dirname == 'test':
+                            self.test_set.append(song)
+                        if dirname == 'train':
+                            self.train_set.append(song)
+                        if dirname == 'valid':
+                            self.validation_set.append(song)
+        print(len(self.notes))
 
     """Returns the pitch class of a note."""
     def get_pitch_class(self, note):
@@ -89,7 +90,7 @@ class Preprocess():
                 transposed -= 12
             return transposed
 
-        df = df.applymap(transpose_and_wrap)
+        df = df.map(transpose_and_wrap)
         return df
 
     """Encodes the song with all unique tokens and each note as itself and a tie indicating if its the same note as the previous one."""

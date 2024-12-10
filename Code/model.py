@@ -8,7 +8,7 @@ import random
 
 class Model(nn.Module):
     """Initializes the model architecture."""
-    def __init__(self, embedding_dim=128, hidden_dim=512, vocab_size=97, num_layers=2, dropout_rate=0.15, device="cpu"):
+    def __init__(self, embedding_dim=128, hidden_dim=512, vocab_size=111, num_layers=2, dropout_rate=0.15, device="cpu"):
         super(Model, self).__init__()
         self.lstm = nn.LSTM(embedding_dim, hidden_dim, num_layers, batch_first=True, bidirectional=False)
         self.fc = nn.Linear(in_features=hidden_dim, out_features=vocab_size)

@@ -49,7 +49,7 @@ class Music():
         
         non_zero_notes = {x for x in self.notes_in_data if x != 0}
         min_val = min(non_zero_notes)
-        max_val = max(self.notes_in_data)
+        max_val = 88
         range_offset = max_val - min_val + 1
         base_index = 5
         for note in range(min_val, max_val + 1):
